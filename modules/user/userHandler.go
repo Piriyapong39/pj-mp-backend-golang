@@ -39,5 +39,5 @@ func userLogin(c *fiber.Ctx) error {
 	}
 
 	fmt.Println(userRequest)
-	return c.SendString("Kuy")
+	return c.SendString("Eiei")
 }
