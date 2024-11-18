@@ -1,6 +1,8 @@
 package user
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -27,5 +29,15 @@ func userRegister(c *fiber.Ctx) error {
 }
 
 func userLogin(c *fiber.Ctx) error {
-	return nil
+	userRequest := new(User)
+	if err := c.BodyParser(userRequest); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err})
+	}
+
+	if userRequest.Email == "" || userRequest.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "You are missing some fields please check again"})
+	}
+
+	fmt.Println(userRequest)
+	return c.SendString("Kuy")
 }
