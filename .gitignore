@@ -1,0 +1,12 @@
+# ignore node_modules
+/node_modules
+
+#ignore .env file
+/config/.env
+
+#ignore database
+/config/database.go
+
+#ignore logs
+/config/logs/*
+
