@@ -43,3 +43,7 @@ func _userRegister(user User) (string, error) {
 
 	return "registered successfully", nil
 }
+
+func _userLogin(userRequest User) (string, error) {
+	return "1234", nil
+}

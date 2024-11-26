@@ -39,5 +39,9 @@ func userLogin(c *fiber.Ctx) error {
 	}
 
 	fmt.Println(userRequest)
-	return c.SendString("Eiei")
+	results, err := _userLogin(*userRequest)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err})
+	}
+	return c.Status(fiber.StatusAccepted).JSON(fiber.Map{"token": results})
 }
