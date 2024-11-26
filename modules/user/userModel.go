@@ -10,6 +10,13 @@ import (
 	UserService "github.com/azujito/golang-api/service/user"
 )
 
+type UserData struct {
+	Email     string
+	Password  string
+	FirstName string
+	LastName  string
+}
+
 func _userRegister(user User) (string, error) {
 	// connect database
 	db, err := database.Connection()
@@ -45,5 +52,24 @@ func _userRegister(user User) (string, error) {
 }
 
 func _userLogin(userRequest User) (string, error) {
-	return "1234", nil
+	var password string
+	db, err := database.Connection()
+	if err != nil {
+		return "", err
+	}
+	defer db.Close()
+	err = db.QueryRow(`
+        SELECT password FROM tb_users WHERE email = $1
+    `, userRequest.Email).Scan(&password)
+
+	if err != nil {
+		return "", fmt.Errorf("wrong email")
+	}
+
+	match := UserService.CheckPasswordHash(userRequest.Password, password)
+	if match {
+		return "huhuhaha", nil
+	}
+
+	return "", fmt.Errorf("wrong password")
 }
