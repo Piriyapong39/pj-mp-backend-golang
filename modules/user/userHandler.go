@@ -14,7 +14,7 @@ type User struct {
 func userRegister(c *fiber.Ctx) error {
 	user := new(User)
 	if err := c.BodyParser(user); err != nil {
-		return c.SendString(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 	if user.Email == "" || user.Password == "" || user.FirstName == "" || user.LastName == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "You are missing some fields please check again"})

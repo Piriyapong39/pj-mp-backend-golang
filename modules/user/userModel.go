@@ -8,14 +8,10 @@ import (
 
 	// import service
 	UserService "github.com/azujito/golang-api/service/user"
-)
 
-type UserData struct {
-	Email     string
-	Password  string
-	FirstName string
-	LastName  string
-}
+	// import model
+	"github.com/azujito/golang-api/service/model"
+)
 
 func _userRegister(user User) (string, error) {
 	// connect database
@@ -52,24 +48,33 @@ func _userRegister(user User) (string, error) {
 }
 
 func _userLogin(userRequest User) (string, error) {
-	var password string
 	db, err := database.Connection()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("database connection error")
 	}
 	defer db.Close()
+
+	userData := new(model.UserData)
 	err = db.QueryRow(`
-        SELECT password FROM tb_users WHERE email = $1
-    `, userRequest.Email).Scan(&password)
+        SELECT id, email, password, first_name, last_name  
+        FROM tb_users 
+        WHERE email = $1
+    `, userRequest.Email).Scan(&userData.ID, &userData.Email, &userData.Password, &userData.FirstName, &userData.LastName)
 
 	if err != nil {
-		return "", fmt.Errorf("wrong email")
+		return "", fmt.Errorf("invalid credentials")
 	}
 
-	match := UserService.CheckPasswordHash(userRequest.Password, password)
-	if match {
-		return "huhuhaha", nil
+	// Verify password first
+	if !UserService.CheckPasswordHash(userRequest.Password, userData.Password) {
+		return "", fmt.Errorf("invalid credentials")
 	}
 
-	return "", fmt.Errorf("wrong password")
+	// Generate token
+	token, err := UserService.GenToken(*userData)
+	if err != nil {
+		return "", fmt.Errorf("token generation error")
+	}
+
+	return token, nil
 }
